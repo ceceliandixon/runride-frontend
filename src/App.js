@@ -51,29 +51,37 @@ import { BrowserRouter, Navigate, Routes, Route} from 'react-router-dom';
 import HomePage from './scenes/homePage';
 import ProfilePage from './scenes/profilePage';
 import PostPage from './scenes/postPage';
+import LoginPage from './scenes/loginPage';
 import { useMemo } from "react";
 import { useSelector } from 'react-redux';
 import { CssBaseline, ThemeProvider, getFormControlLabelUtilityClasses} from "@mui/material";
 import { createMuiTheme, createTheme } from "@mui/material/styles";
 import { themeSettings } from './theme';
+import { GoogleOAuthProvider } from '@react-oauth/google';
+
+const clientId = process.env.REACT_APP_GOOGLE_CLIENT_ID;
 
 function App() {
   const mode = useSelector((state) => state.mode);
   const theme = useMemo(() => createTheme(themeSettings(mode)), [mode]);
 
-  return <div className="app">
-    <BrowserRouter>
-      <ThemeProvider theme={theme}>
-        <CssBaseline /> 
-        <Routes>
-          <Route path="/" element={<HomePage />} />
-          <Route path="/activities" element={<HomePage />} />
-          <Route path="/activities/:id" element={<PostPage />} />
-          <Route path="/profile/:userId" element={<ProfilePage />} />
-        </Routes>
-      </ThemeProvider>
-    </BrowserRouter>
-  </div>;
+  return (
+  <GoogleOAuthProvider clientId={clientId}>
+    <div className="app">
+      <BrowserRouter>
+        <ThemeProvider theme={theme}>
+          <CssBaseline /> 
+          <Routes>
+            <Route path="/" element={<LoginPage />} />
+            <Route path="/activities" element={<HomePage />} />
+            <Route path="/activities/:id" element={<PostPage />} />
+            <Route path="/profile/:userId" element={<ProfilePage />} />
+          </Routes>
+        </ThemeProvider>
+      </BrowserRouter>
+    </div>
+  </GoogleOAuthProvider >
+  );
 }
 
 export default App;
