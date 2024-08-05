@@ -64,6 +64,8 @@ const clientId = process.env.REACT_APP_GOOGLE_CLIENT_ID;
 function App() {
   const mode = useSelector((state) => state.mode);
   const theme = useMemo(() => createTheme(themeSettings(mode)), [mode]);
+  const isAuth = Boolean(useSelector((state) => state.token));
+
 
   return (
   <GoogleOAuthProvider clientId={clientId}>
