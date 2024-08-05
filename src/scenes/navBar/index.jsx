@@ -45,7 +45,7 @@ const Navbar = () => {
   const handleLogout = () => {
     googleLogout();
     dispatch(setLogout());
-    navigate("/");  // Redirect to login page after logout if needed
+    navigate("/"); 
   };
 
   return (
