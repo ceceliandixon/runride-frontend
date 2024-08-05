@@ -1,11 +1,8 @@
 import { Box, Typography, useTheme, useMediaQuery } from "@mui/material";
 import Login from "./Login";
-import { useState } from "react";
 
 
 const LoginPage = () => {
-    const [user, setUser] = useState(null);
-
     const theme = useTheme();
     const isNonMobileScreens = useMediaQuery("(min-width: 1000px)");
     return <Box>
@@ -24,11 +21,9 @@ const LoginPage = () => {
             </Typography>
         </Box>
         <Box>
-            <Login setUser={setUser}/>
+            <Login />
         </Box>
     </Box>
-
-    // TODO: google auth here? how?
 };
 
 export default LoginPage;
