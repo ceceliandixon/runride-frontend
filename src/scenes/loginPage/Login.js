@@ -23,8 +23,6 @@ function Login() {
         };
         dispatch(setLogin(loginData));
         localStorage.setItem("login", JSON.stringify(loginData));
-        // TODO: Check if userid in user database-- if not add data
-
         try {
             // Check if the user exists in the database
             const response = await UserDataService.getUser(tokenData.sub);
