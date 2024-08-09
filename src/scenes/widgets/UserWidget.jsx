@@ -14,7 +14,7 @@ import { useNavigate } from "react-router-dom";
 import UserDataService from '../../services/users.js';
 
 // Widget with user info on left of screen
-const UserWidget = ({ userId, picturePath }) => {
+const UserWidget = ({ userId}) => {
     const [user, setUser] = useState(null); // how to grab user 
     const { palette } = useTheme();
     const navigate = useNavigate();
@@ -46,8 +46,8 @@ const UserWidget = ({ userId, picturePath }) => {
         userName,
         friendsList
       } = user;
-    
-    
+
+
       return (
         <WidgetWrapper>
           <FlexBetween

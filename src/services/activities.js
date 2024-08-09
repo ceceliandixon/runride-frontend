@@ -12,6 +12,11 @@ class ActivityDataService {
         );
     }
 
+    createActivity(data) {
+        console.log(`data received in services: ${data}`); // debugging
+        return axios.post(`${process.env.REACT_APP_API_BASE_URL}/api/v1/`, data);
+    }
+
     // get ratings?
 
 }
