@@ -1,12 +1,8 @@
 import {
   EditOutlined,
   DeleteOutlined,
-  AttachFileOutlined,
-  GifBoxOutlined,
   ImageOutlined,
-  MicOutlined,
-  MoreHorizOutlined,
-  Description
+  MoreHorizOutlined
 } from "@mui/icons-material";
 import {
   Box,
@@ -32,15 +28,14 @@ import { setPosts } from "../../state/index.js";
 import UserDataService from '../../services/users.js';
 import ActivityDataService from '../../services/activities.js';
 
-
 const MyPostWidget = ({ userId }) => {
   const dispatch = useDispatch();
-  const [user, setUser] = useState(null); // how to grab user 
+  const [user, setUser] = useState(null);
   const [isImage, setIsImage] = useState(false);
   const [image, setImage] = useState(null);
   const [post, setPost] = useState("");
-  const [distance, setDistance] = useState(""); // New state for distance
-  const [activityType, setActivityType] = useState(""); // New state for dropdown selection
+  const [distance, setDistance] = useState("");
+  const [activityType, setActivityType] = useState("");
   const { palette } = useTheme();
   const { _id } = useSelector((state) => state.user);
   const token = useSelector((state) => state.token);
@@ -50,16 +45,16 @@ const MyPostWidget = ({ userId }) => {
 
   const getUser = async () => {
     try {
-        const response = await UserDataService.getUser(userId);
-        setUser(response.data);
+      const response = await UserDataService.getUser(userId);
+      setUser(response.data);
     } catch (error) {
-        console.error("Error fetching user:", error);
+      console.error("Error fetching user:", error);
     }
-};
+  };
 
-useEffect(() => {
+  useEffect(() => {
     getUser();
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [userId]);
 
   if (!user) {
     return null;
@@ -75,10 +70,10 @@ useEffect(() => {
   const formDataToObject = (formData) => {
     const obj = {};
     formData.forEach((value, key) => {
-        obj[key] = value;
+      obj[key] = value;
     });
     return obj;
-};
+  };
 
   const handlePost = async () => {
     const formData = new FormData();
@@ -89,30 +84,18 @@ useEffect(() => {
     formData.append("activityType", activityType);
 
     if (image) {
-        formData.append("picture", image);
-        formData.append("picturePath", image.name);
+      formData.append("picture", image);
+      formData.append("picturePath", image.name);
     }
-
-    // Log the FormData contents
-    formData.forEach((value, key) => {
-      console.log(`${key}:`, value);
-    });
-
-    const data = formDataToObject(formData);
-
 
     try {
-        const response = await ActivityDataService.createActivity(data);
-        const posts = response.data;
-        dispatch(setPosts({ posts }));
-        setImage(null);
-        setPost("");
-        setDistance("");
-        setActivityType("");
+      const response = await ActivityDataService.createActivity(formData);
+      console.log("response:", response.data);
+      window.location.reload(); // Refresh the page
     } catch (error) {
-        console.error("Error posting activity:", error);
+      console.error("Error posting activity:", error);
     }
-};
+  };
 
   return (
     <WidgetWrapper>
@@ -131,26 +114,19 @@ useEffect(() => {
         />
       </FlexBetween>
 
-        {/* Container for distance and activity type */}
-        <Box
-        display="flex"
-        gap="1rem" // Space between the two fields
-        mt="1rem"
-      >
-        {/* Distance Text Box */}
+      <Box display="flex" gap="1rem" mt="1rem">
         <InputBase
           placeholder="Distance"
           onChange={(e) => setDistance(e.target.value)}
           value={distance}
           sx={{
-            flex: 1, // Grow to fill available space
+            flex: 1,
             backgroundColor: palette.neutral.light,
             borderRadius: "2rem",
             padding: "1rem 2rem",
           }}
         />
 
-        {/* Dropdown for activity type */}
         <FormControl sx={{ flex: 1 }}>
           <InputLabel>Activity Type</InputLabel>
           <Select
@@ -163,13 +139,9 @@ useEffect(() => {
           </Select>
         </FormControl>
       </Box>
+
       {isImage && (
-        <Box
-          border={`1px solid ${medium}`}
-          borderRadius="5px"
-          mt="1rem"
-          p="1rem"
-        >
+        <Box border={`1px solid ${medium}`} borderRadius="5px" mt="1rem" p="1rem">
           <Dropzone
             acceptedFiles=".jpg,.jpeg,.png"
             multiple={false}
@@ -195,10 +167,7 @@ useEffect(() => {
                   )}
                 </Box>
                 {image && (
-                  <IconButton
-                    onClick={() => setImage(null)}
-                    sx={{ width: "15%" }}
-                  >
+                  <IconButton onClick={() => setImage(null)} sx={{ width: "15%" }}>
                     <DeleteOutlined />
                   </IconButton>
                 )}
@@ -213,10 +182,7 @@ useEffect(() => {
       <FlexBetween>
         <FlexBetween gap="0.25rem" onClick={() => setIsImage(!isImage)}>
           <ImageOutlined sx={{ color: mediumMain }} />
-          <Typography
-            color={mediumMain}
-            sx={{ "&:hover": { cursor: "pointer", color: medium } }}
-          >
+          <Typography color={mediumMain} sx={{ "&:hover": { cursor: "pointer", color: medium } }}>
             Image
           </Typography>
         </FlexBetween>
