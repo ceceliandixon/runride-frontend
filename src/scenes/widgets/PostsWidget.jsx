@@ -10,61 +10,54 @@ const PostsWidget = ({ userId, isProfile = false }) => {
   const posts = useSelector((state) => state.posts);
   const [userProfilePics, setUserProfilePics] = useState({});
 
-  // Function to get all posts
   const getPosts = async () => {
-    console.log('Fetching all posts...');
     try {
       const response = await ActivityDataService.getAll();
-      console.log('Posts fetched:', response.data);
       if (Array.isArray(response.data.activities)) {
         const fetchedPosts = response.data.activities;
-        // Ensure date is parsed correctly
-        fetchedPosts.forEach(post => {
-          console.log('Post date:', post.date);
-        });
-        // Sort posts by date in descending order
         fetchedPosts.sort((a, b) => new Date(b.date) - new Date(a.date));
-        console.log('Posts sorted:', fetchedPosts);
         dispatch(setPosts({ posts: fetchedPosts }));
         fetchUserProfilePics(fetchedPosts);
       } else {
-        console.error('Expected an array of posts, but got:', response.data);
         dispatch(setPosts({ posts: [] }));
       }
     } catch (error) {
       console.error("Error fetching posts: ", error);
-      dispatch(setPosts({ posts: [] })); // Set empty array on error
+      dispatch(setPosts({ posts: [] }));
     }
   };
 
-  // Function to get user posts
   const getUserPosts = async () => {
-    console.log('Fetching posts for user ID:', userId);
+    console.log("Starting getUserPosts function");
+  
     try {
-      const response = await ActivityDataService.getByUserId(userId);
-      console.log('User posts fetched:', response.data);
-      if (Array.isArray(response.data.activities)) {
-        const fetchedPosts = response.data.activities;
-        // Ensure date is parsed correctly
-        fetchedPosts.forEach(post => {
-          console.log('Post date:', post.date);
-        });
-        // Sort posts by date in descending order
+      console.log(`Fetching activities for userId: ${userId}`);
+      const response = await ActivityDataService.getActivitiesByUserId(userId);
+  
+      console.log("API response received:", response);
+  
+      // Handle response.data directly as an array
+      if (Array.isArray(response.data)) {
+        const fetchedPosts = response.data;
+  
+        console.log("Fetched posts before sorting:", fetchedPosts);
+  
         fetchedPosts.sort((a, b) => new Date(b.date) - new Date(a.date));
-        console.log('User posts sorted:', fetchedPosts);
+  
+        console.log("Fetched posts after sorting:", fetchedPosts);
+  
         dispatch(setPosts({ posts: fetchedPosts }));
         fetchUserProfilePics(fetchedPosts);
       } else {
-        console.error('Expected an array of posts, but got:', response.data);
+        console.warn("Response data is not an array. Response data:", response.data);
         dispatch(setPosts({ posts: [] }));
       }
     } catch (error) {
       console.error("Error fetching user posts: ", error);
-      dispatch(setPosts({ posts: [] })); // Set empty array on error
+      dispatch(setPosts({ posts: [] }));
     }
   };
 
-  // Function to fetch profile pictures for users in posts
   const fetchUserProfilePics = async (posts) => {
     const userIds = [...new Set(posts.map(post => post.userId))];
     try {
@@ -81,13 +74,12 @@ const PostsWidget = ({ userId, isProfile = false }) => {
   };
 
   useEffect(() => {
-    console.log('Effect triggered. isProfile:', isProfile, 'userId:', userId);
     if (isProfile) {
       getUserPosts();
     } else {
       getPosts();
     }
-  }, [userId, isProfile]); // Dependencies ensure effect runs when these change
+  }, [userId, isProfile]);
 
   return (
     <>
@@ -97,7 +89,7 @@ const PostsWidget = ({ userId, isProfile = false }) => {
         Array.isArray(posts) && posts.map((post, index) => (
           post ? (
             <PostWidget
-              key={post._id || `post-${index}`} // Use index as fallback key
+              key={post._id || `post-${index}`}
               postId={post._id || ''}
               postUserId={post.userId || ''}
               name={`${post.userName || 'Unknown'}`}
@@ -119,4 +111,3 @@ const PostsWidget = ({ userId, isProfile = false }) => {
 };
 
 export default PostsWidget;
-

@@ -5,13 +5,12 @@ import { useNavigate } from "react-router-dom";
 import { setFriends } from "../state/index.js";
 import FlexBetween from "./FlexBetween";
 import UserImage from "./UserImage";
+import UserDataService from '../services/users.js';
 
 const Friend = ({ friendId, name, subtitle, userPicturePath }) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { _id } = useSelector((state) => state.user);
-  const token = useSelector((state) => state.token);
-  const friends = useSelector((state) => state.user.friends) || [];
+  const friends = useSelector((state) => state.user.friendsList) || [];
 
   const { palette } = useTheme();
   const primaryLight = palette.primary.light;
@@ -21,19 +20,21 @@ const Friend = ({ friendId, name, subtitle, userPicturePath }) => {
 
   const isFriend = friends.find((friend) => friend._id === friendId);
 
-  const addFriend = async () => {
-    const response = await fetch(
-      `http://localhost:3001/users/${_id}/${friendId}`,
-      {
-        method: "PATCH",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-      }
-    );
-    const data = await response.json();
-    dispatch(setFriends({ friends: data }));
+  const user = useSelector((state) => state.user);
+
+   // Destructuring properties from user data
+   const { picture, sub: userId} = user;
+
+  const patchFriend = async () => {
+    try {
+      console.log(UserDataService);
+      console.log('patch request', friendId, userId);
+      const response = await UserDataService.addFriend(friendId, userId); // Use ActivityDataService
+      dispatch(setFriends({ friends: response.data }));
+      window.location.reload(); // Refresh the page
+    } catch (error) {
+      console.error("Error adding friend:", error);
+    }
   };
 
   return (
@@ -65,7 +66,7 @@ const Friend = ({ friendId, name, subtitle, userPicturePath }) => {
         </Box>
       </FlexBetween>
       <IconButton
-        onClick={() => addFriend()}
+        onClick={() => patchFriend()}
         sx={{ backgroundColor: primaryLight, p: "0.6rem" }}
       >
         {isFriend ? (

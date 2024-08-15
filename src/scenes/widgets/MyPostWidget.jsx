@@ -29,7 +29,6 @@ import UserDataService from '../../services/users.js';
 import ActivityDataService from '../../services/activities.js';
 
 const MyPostWidget = ({ userId }) => {
-  const dispatch = useDispatch();
   const [user, setUser] = useState(null);
   const [isImage, setIsImage] = useState(false);
   const [image, setImage] = useState(null);
@@ -37,14 +36,18 @@ const MyPostWidget = ({ userId }) => {
   const [distance, setDistance] = useState("");
   const [activityType, setActivityType] = useState("");
   const { palette } = useTheme();
-  const { _id } = useSelector((state) => state.user);
-  const token = useSelector((state) => state.token);
   const isNonMobileScreens = useMediaQuery("(min-width: 1000px)");
   const mediumMain = palette.neutral.mediumMain;
   const medium = palette.neutral.medium;
 
   const getUser = async () => {
+    if (!userId) {
+      console.error("userId is not defined");
+      return;
+    }
+
     try {
+      console.log('Fetching user with ID:', userId); // Log userId for debugging
       const response = await UserDataService.getUser(userId);
       setUser(response.data);
     } catch (error) {
@@ -57,6 +60,7 @@ const MyPostWidget = ({ userId }) => {
   }, [userId]);
 
   if (!user) {
+    console.log("User not found or still loading...");
     return null;
   }
 
@@ -90,8 +94,8 @@ const MyPostWidget = ({ userId }) => {
 
     try {
       const response = await ActivityDataService.createActivity(formData);
-      console.log("response:", response.data);
-      window.location.reload(); // Refresh the page
+      console.log("Activity posted successfully:", response.data);
+      // Update state or dispatch action instead of refreshing the page
     } catch (error) {
       console.error("Error posting activity:", error);
     }

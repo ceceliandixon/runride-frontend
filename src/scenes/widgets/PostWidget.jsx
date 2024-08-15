@@ -1,8 +1,7 @@
 import {
-  ChatBubbleOutlineOutlined,
   FavoriteBorderOutlined,
   FavoriteOutlined,
-  ShareOutlined,
+  DeleteOutline
 } from "@mui/icons-material";
 import { Box, Divider, IconButton, Typography, useTheme } from "@mui/material";
 import FlexBetween from "../../components/FlexBetween";
@@ -12,6 +11,7 @@ import { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { setPost } from "../../state/index.js";
 import ActivityDataService from '../../services/activities.js';
+import UserDataService from '../../services/users.js';
 
 const PostWidget = ({
   postId = '',
@@ -23,12 +23,9 @@ const PostWidget = ({
   picturePath = '',
   userPicturePath = '',
   likesList = [], // Default to an empty array
-  comments = [],
 }) => {
-  const [isComments, setIsComments] = useState(false);
   const [isLiked, setIsLiked] = useState(false);
   const dispatch = useDispatch();
-  const loggedInUserId = useSelector((state) => state.userId);
   const likeCount = Array.isArray(likesList) ? likesList.length : 0;
 
   const user = useSelector((state) => state.user);
@@ -39,12 +36,8 @@ const PostWidget = ({
   const primary = palette.primary.main;
 
   useEffect(() => {
-    console.log('likesList:', likesList);
-    console.log('loggedInUserId:', userId);
-    
     if (Array.isArray(likesList)) {
       const userHasLiked = likesList.includes(userId);
-      console.log('User has liked:', userHasLiked);
       setIsLiked(userHasLiked);
     } else {
       console.error('likesList is not an array:', likesList);
@@ -53,20 +46,24 @@ const PostWidget = ({
 
   const patchLike = async () => {
     try {
-      console.log('Sending like request...');
-      console.log('Post ID:', postId);
-      console.log('Logged-in User ID:', userId);
-  
       const response = await ActivityDataService.addLike(postId, userId); // Use ActivityDataService
-  
-      console.log('Response received from server:', response);
-      // Update post state with the response data if needed
       dispatch(setPost({ post: response.data }));
-      // Toggle local like status
-      setIsLiked(!isLiked); 
-  
+      setIsLiked(!isLiked);
+      window.location.reload(); // Refresh the page
     } catch (error) {
       console.error("Error liking post:", error);
+    }
+  };
+
+  const deletePost = async () => {
+    console.log('Activity Id:', postId);
+    console.log('User Id:', userId);
+    try {
+      await ActivityDataService.deleteActivity(postId, userId); // Ensure this method matches your backend
+      //dispatch(removePost(postId));
+      window.location.reload(); // Refresh the page
+    } catch (error) {
+      console.error("Error deleting post:", error);
     }
   };
 
@@ -87,7 +84,7 @@ const PostWidget = ({
           height="auto"
           alt="post"
           style={{ borderRadius: "0.75rem", marginTop: "0.75rem" }}
-          src={`http://localhost:5001/assets/${picturePath}`}
+          src={``} // Update source if necessary
         />
       )}
       <FlexBetween mt="0.25rem">
@@ -102,32 +99,15 @@ const PostWidget = ({
             </IconButton>
             <Typography>{likeCount}</Typography>
           </FlexBetween>
-
-          <FlexBetween gap="0.3rem">
-            <IconButton onClick={() => setIsComments(!isComments)}>
-              <ChatBubbleOutlineOutlined />
-            </IconButton>
-            <Typography>{comments.length}</Typography>
-          </FlexBetween>
         </FlexBetween>
 
-        <IconButton>
-          <ShareOutlined />
-        </IconButton>
+        {/* Conditionally render DeleteOutline icon */}
+        {userId === postUserId && (
+          <IconButton onClick={deletePost}>
+            <DeleteOutline />
+          </IconButton>
+        )}
       </FlexBetween>
-      {isComments && (
-        <Box mt="0.5rem">
-          {comments.map((comment, i) => (
-            <Box key={`${name}-${i}`}>
-              <Divider />
-              <Typography sx={{ color: main, m: "0.5rem 0", pl: "1rem" }}>
-                {comment}
-              </Typography>
-            </Box>
-          ))}
-          <Divider />
-        </Box>
-      )}
     </WidgetWrapper>
   );
 };
