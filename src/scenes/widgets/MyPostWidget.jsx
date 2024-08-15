@@ -95,6 +95,7 @@ const MyPostWidget = ({ userId }) => {
     try {
       const response = await ActivityDataService.createActivity(formData);
       console.log("Activity posted successfully:", response.data);
+      window.location.reload(); // Refresh the page
       // Update state or dispatch action instead of refreshing the page
     } catch (error) {
       console.error("Error posting activity:", error);
